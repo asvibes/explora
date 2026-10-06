@@ -1,0 +1,3 @@
+PLACEHOLDER - not frozen yet.
+After tuning on the "tune" photos, replace this whole file with the final prompt text, then do not edit it again.
+If you change it later, rerun every scored evaluation and say so in the post.
