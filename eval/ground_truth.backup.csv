@@ -1,0 +1,28 @@
+photo_id,category,difficulty,split,ground_truth,truth_level,how_verified,notes
+p01,plant,easy,tune,potted leafy plant,visual_group,thumbnail_review,Full-resolution verification needed
+p02,tree,easy,tune,large tree,visual_group,thumbnail_review,Full-resolution verification needed
+p03,flower,easy,tune,hibiscus-like flower,visual_group,thumbnail_review,Verify flower identification
+p04,plant,medium,tune,young green leaves,visual_group,thumbnail_review,Full-resolution verification needed
+p05,tree,easy,tune,large tree,visual_group,thumbnail_review,Full-resolution verification needed
+p06,flower,medium,tune,pink flower,visual_group,thumbnail_review,Exact flower unknown
+p07,plant,medium,tune,lobed green leaves,visual_group,thumbnail_review,Exact plant unknown
+p08,plant,easy,tune,potted narrow-leaved plant,visual_group,thumbnail_review,Full-resolution verification needed
+p09,tree,easy,tune,weeping willow-like tree,visual_group,thumbnail_review,Verify tree identification
+p12,butterfly,easy,tune,monarch-like butterfly,visual_group,thumbnail_review,Verify species independently
+p13,insect,easy,tune,bee on flower,visual_group,thumbnail_review,Exact bee species unknown
+p14,insect,easy,tune,ant,visual_group,thumbnail_review,Full-resolution verification needed
+p15,insect,easy,tune,dragonfly,visual_group,thumbnail_review,Full-resolution verification needed
+p16,insect,medium,tune,beetle on leaf,visual_group,thumbnail_review,Exact beetle unknown
+p17,insect,medium,tune,moth,visual_group,thumbnail_review,Exact moth unknown
+p18,butterfly,easy,tune,blue butterfly,visual_group,thumbnail_review,Exact species unknown
+p19,insect,medium,tune,winged insect,visual_group,thumbnail_review,Possible wasp; verify
+p20,insect,easy,tune,caterpillar on leaf,visual_group,thumbnail_review,Exact species unknown
+p23,bird,medium,tune,orange-and-black bird,visual_group,thumbnail_review,Verify species independently
+p24,bird,easy,tune,bald eagle,visual_group,thumbnail_review,Confirm visible identifying features
+p25,bird,easy,tune,bald eagle,visual_group,thumbnail_review,Confirm visible identifying features
+p26,bird,medium,tune,bird in flight,visual_group,thumbnail_review,Exact species unknown
+p27,bird,medium,tune,blue bird,visual_group,thumbnail_review,Exact species unknown
+p28,rock,easy,tune,large rock,visual_group,thumbnail_review,Full-resolution verification needed
+p29,shell,easy,tune,seashells,visual_group,thumbnail_review,Full-resolution verification needed
+p30,plant,easy,tune,leaf with visible veins,visual_group,thumbnail_review,Full-resolution verification needed
+p31,rock,medium,tune,weathered geological surface,visual_group,thumbnail_review,Confirm whether this is a rock formation

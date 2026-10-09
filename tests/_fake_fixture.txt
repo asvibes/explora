@@ -1,0 +1,32 @@
+﻿@pytest.fixture
+def fake():
+    def make_result(
+        status="ok",
+        category="bird",
+        identification="Blue Jay",
+        confidence="High",
+        explanation="A bird with blue plumage.",
+        fact="Birds have feathers.",
+        error=None,
+    ):
+        return IdentifyResult(
+            status=status,
+            category=category,
+            identification=identification,
+            confidence=confidence,
+            explanation=explanation,
+            fact=fact,
+            model="test-model",
+            settings={"max_side": 768, "think": False},
+            prompt_hash="test-prompt-hash",
+            elapsed_s=0.1,
+            load_s=0.0,
+            raw="{}",
+            error=error,
+        )
+
+    class FakeIdentify:
+        def __call__(self, *args, **kwargs):
+            return make_result()
+
+    return make_result

@@ -1,1 +1,28 @@
 photo_id,category,difficulty,split,ground_truth,truth_level,how_verified,notes
+p01,plant,easy,scored,potted leafy plant,visual_group,visual_only,Full-resolution verification needed
+p02,tree,easy,tune,large tree,visual_group,visual_only,Full-resolution verification needed
+p03,flower,easy,scored,hibiscus-like flower,visual_group,visual_only,Verify flower identification
+p04,plant,medium,scored,young green leaves,visual_group,visual_only,Full-resolution verification needed
+p05,tree,easy,scored,large tree,visual_group,visual_only,Full-resolution verification needed
+p06,flower,medium,scored,pink flower,visual_group,visual_only,Exact flower unknown
+p07,plant,medium,scored,lobed green leaves,visual_group,visual_only,Exact plant unknown
+p08,plant,easy,scored,potted narrow-leaved plant,visual_group,visual_only,Full-resolution verification needed
+p09,tree,easy,scored,weeping willow-like tree,visual_group,visual_only,Verify tree identification
+p12,butterfly,easy,scored,monarch-like butterfly,visual_group,visual_only,Verify species independently
+p13,insect,easy,scored,bee on flower,visual_group,visual_only,Exact bee species unknown
+p14,insect,easy,scored,ant,visual_group,visual_only,Full-resolution verification needed
+p15,insect,easy,scored,dragonfly,visual_group,visual_only,Full-resolution verification needed
+p16,insect,medium,scored,beetle on leaf,visual_group,visual_only,Exact beetle unknown
+p17,insect,medium,scored,moth,visual_group,visual_only,Exact moth unknown
+p18,butterfly,easy,scored,blue butterfly,visual_group,visual_only,Exact species unknown
+p19,insect,medium,scored,winged insect,visual_group,visual_only,Possible wasp; verify
+p20,insect,easy,scored,caterpillar on leaf,visual_group,visual_only,Exact species unknown
+p23,bird,medium,scored,orange-and-black bird,visual_group,visual_only,Verify species independently
+p24,bird,easy,scored,bald eagle,visual_group,visual_only,Confirm visible identifying features
+p25,bird,easy,scored,bald eagle,visual_group,visual_only,Confirm visible identifying features
+p26,bird,medium,scored,bird in flight,visual_group,visual_only,Exact species unknown
+p27,bird,medium,scored,blue bird,visual_group,visual_only,Exact species unknown
+p28,rock,easy,scored,large rock,visual_group,visual_only,Full-resolution verification needed
+p29,shell,easy,scored,seashells,visual_group,visual_only,Full-resolution verification needed
+p30,plant,easy,scored,leaf with visible veins,visual_group,visual_only,Full-resolution verification needed
+p31,rock,medium,scored,weathered geological surface,visual_group,visual_only,Confirm whether this is a rock formation
