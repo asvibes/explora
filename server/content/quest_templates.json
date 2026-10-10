@@ -1,0 +1,13 @@
+{
+  "_note": "Reviewed, photograph-only suggestions (PRD 10.6). Every text is scanned against banned_phrases.txt [quests] when loaded. Avoid words that start with a banned phrase (for example 'petal' starts with 'pet').",
+  "templates": [
+    {"id": "something_yellow",   "text": "Photograph something yellow.", "difficulty": "easy"},
+    {"id": "unusual_leaf",       "text": "Find a leaf with an unusual shape and photograph it.", "difficulty": "easy"},
+    {"id": "three_leaf_shapes",  "text": "Find three different leaf shapes and photograph each one.", "difficulty": "tricky"},
+    {"id": "bird_overhead",      "text": "Look up and photograph a bird from a safe distance.", "difficulty": "tricky"},
+    {"id": "smooth_and_rough",   "text": "Photograph something smooth and something rough.", "difficulty": "easy"},
+    {"id": "six_legs",           "text": "Find something with six legs and photograph it from a respectful distance.", "difficulty": "tricky"},
+    {"id": "rarely_noticed_flower", "text": "Photograph a flower in a colour you rarely notice.", "difficulty": "easy"},
+    {"id": "something_round",    "text": "Find something round in nature and photograph it.", "difficulty": "easy"}
+  ]
+}

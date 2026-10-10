@@ -172,7 +172,8 @@ def test_batch_continues_after_an_error(conn, cfg, jpeg, fake):
 
     def flaky(*args, **kw):
         calls["n"] += 1
-        return (fake(status="error", error="boom") if calls["n"] == 1 else fake())(*args, **kw)
+        result = fake(status="error", error="boom") if calls["n"] == 1 else fake()
+        return result
 
     out = walks.identify_walk(conn, cfg, wid, flaky)
     assert out == {"identified": 1, "errors": [(a, "boom")], "total": 2}
