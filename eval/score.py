@@ -241,6 +241,8 @@ def main() -> int:
     ap.add_argument("--use-auto", action="store_true",
                     help="count auto_match=Exact as graded when correctness is blank (unreviewed!)")
     ap.add_argument("--md", type=Path, help="also write the report to this markdown file")
+    args = ap.parse_args()
+
     default_gt = (EVAL_DIR / "ground_truth.csv").resolve()
     default_results = (EVAL_DIR / "results").resolve()
 

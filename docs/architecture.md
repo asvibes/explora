@@ -129,4 +129,4 @@ The person's private journal is never scanned. That is a deliberate non-goal.
 - **Privacy by construction.** Stored photos carry no EXIF, so GPS in the original never enters the data folder. Walk area is typed text, never GPS. The content hash is for duplicates only, not authenticity.
 - **What needs a network.** Installing Python packages and pulling a model into Ollama. After that, import and identification work without a connection.
 - **Caveat.** `EXPLORA_OLLAMA` can point anywhere. If it is set to a remote host, photos are sent there. The default is local.
-- **Caveat.** The evaluation scripts read original photos directly, and originals may still contain EXIF and GPS. Keep `eval/photos/` out of git and out of any shared folder.
+- **Caveat.** The evaluation scripts read original photos directly, and originals may still contain EXIF and GPS. Keep `eval/photos/` out of git and out of any shared folder

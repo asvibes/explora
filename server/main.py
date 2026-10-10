@@ -1,4 +1,4 @@
-"""Explora local server: the HTTP layer over the existing modules.
+﻿"""Explora local server: the HTTP layer over the existing modules.
 
 Run (from the repo root):
     python -m server.main                 # http://127.0.0.1:8000, this laptop only
@@ -29,7 +29,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Callable, Iterator
 
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -61,6 +61,10 @@ class WalkBody(BaseModel):
     area: str | None = Field(None, max_length=200)
     habitat: str | None = None
     duration_min: int | None = Field(None, ge=1, le=1440)
+
+
+class PhoneWalkBody(BaseModel):
+    date: str = Field(...)
 
 
 class CorrectBody(BaseModel):
@@ -176,6 +180,28 @@ def create_app(cfg: Config | None = None, identify_fn: Callable | None = None,
         with _session(cfg) as conn:
             walk = _run(walks.get_or_create_walk, conn)
             return {**_run(walks.walk_view, conn, walk["id"]), "quests_done": _run(quests.completions, conn, walk["id"])}
+
+    @app.post("/api/walks")
+    def create_phone_walk(body: PhoneWalkBody):
+        from datetime import date
+
+        try:
+            day = date.fromisoformat(body.date)
+        except ValueError:
+            raise HTTPException(400, "Invalid walk date.")
+
+        if day < date(2000, 1, 1) or (day - date.today()).days > 29:
+            raise HTTPException(400, "Walk date is outside the allowed range.")
+
+        with _session(cfg) as conn:
+            walk = _run(walks.get_or_create_walk, conn, day)
+            view = _run(walks.walk_view, conn, walk["id"])
+            return {
+                "walk": walk,
+                **view,
+                "discoveries": view.get("discoveries", []),
+                "quests_done": _run(quests.completions, conn, walk["id"]),
+            }
 
     @app.get("/api/walks/{walk_id}")
     def get_walk(walk_id: int):
@@ -298,6 +324,11 @@ def create_app(cfg: Config | None = None, identify_fn: Callable | None = None,
         with _session(cfg) as conn:
             return {"removed": _run(quests.unmark, conn, walk_id, template_id)}
 
+    # ---- phone interface
+    phone = ROOT / "phone"
+    if (phone / "index.html").exists():
+        app.mount("/phone", StaticFiles(directory=phone, html=True), name="phone")
+
     # ---- the front end (once web/index.html exists). Mounted last so /api wins.
     web = ROOT / "web"
     if (web / "index.html").exists():
@@ -329,3 +360,4 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

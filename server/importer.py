@@ -1,4 +1,4 @@
-"""Photo import (FR-01 to FR-03).
+﻿"""Photo import (FR-01 to FR-03).
 
 - Duplicates are detected by SHA-256 of the original bytes and skipped. The hash
   is for duplicates only, not for proving a photo is genuine.
@@ -67,6 +67,7 @@ def import_bytes(
     data: bytes,
     filename: str = "photo",
     file_mtime: float | None = None,
+    phone_timestamp: float | None = None,
 ) -> ImportResult:
     """Import one photo's bytes into a walk. Never raises for bad input; returns status 'error'."""
     digest = hashlib.sha256(data).hexdigest()
@@ -77,6 +78,9 @@ def import_bytes(
         with Image.open(io.BytesIO(data)) as im:
             im.load()
             captured, source = read_capture_time(im, file_mtime)
+            if source != "exif" and phone_timestamp is not None:
+                captured = datetime.fromtimestamp(phone_timestamp).replace(microsecond=0)
+                source = "file"
             display = ImageOps.exif_transpose(im).convert("RGB")
             display.thumbnail((cfg.display_max_side, cfg.display_max_side), Image.LANCZOS)
     except Exception as e:
@@ -122,3 +126,4 @@ def summarize(results: list[ImportResult]) -> dict:
         "duplicates": sum(r.status == "duplicate" for r in results),
         "errors": [(r.name, r.reason) for r in results if r.status == "error"],
     }
+
