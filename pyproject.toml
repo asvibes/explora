@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "explora"
+version = "0.1.0"
+description = "Local-first nature-walk photo journal. A local Gemma model (via Ollama) suggests what a photo shows; the person confirms, corrects or rejects."
+readme = "README.md"
+# ASSUMPTION: the code uses `X | None` only in annotations (with `from __future__ import annotations`),
+# so it may run on older Pythons, but only >=3.10 is a safe claim. Confirm with `python --version`
+# and the version you actually test on.
+requires-python = ">=3.10"
+# Pillow is the only third-party import in the code supplied. Ollama is reached with urllib (standard library).
+# The lower bound is a conservative choice (the code uses Image.Exif.get_ifd and Image.LANCZOS); not yet tested against older versions.
+dependencies = [
+    "Pillow>=10.0",
+]
+# License intentionally left out until one is chosen. See LICENSE and docs/decisions.md.
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["server*"]
+
+[tool.setuptools.package-data]
+server = ["content/*.txt"]
+
+[tool.pytest.ini_options]
+# Tests live in two places: tests/ (importer, walks, ...) and eval/test_run_eval.py
+# (regression tests for the evaluation script). Both must be listed or plain `pytest` skips one.
+testpaths = ["tests", "eval"]
+# Lets tests do `from server import ...` without installing the package.
+pythonpath = ["."]
+addopts = "-ra"

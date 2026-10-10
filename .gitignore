@@ -1,0 +1,12 @@
+
+# Python environment and generated files
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Temporary evaluation artifacts
+eval/results/*.backup.csv
+eval/results/*_recovered/
+eval/results/retry_test/
+eval/test_run_eval_safety_backup.txt
