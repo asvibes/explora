@@ -1,0 +1,10 @@
+﻿photo_id,category,difficulty,split,ground_truth,truth_level,how_verified,notes
+f01,tree,easy,scored,tree,visual_group,user_labeled,Common name only
+f02,flower,easy,scored,flower,visual_group,user_labeled,Common name only
+f03,leaves,easy,scored,leaves,visual_group,user_labeled,Common name only
+f04,butterfly,easy,scored,butterfly,visual_group,user_labeled,Common name only
+f05,butterfly,easy,scored,butterfly,visual_group,user_labeled,Common name only
+f06,bird,easy,scored,bird,visual_group,user_labeled,Common name only
+f07,bird,easy,scored,bird,visual_group,user_labeled,Common name only
+f08,rock,easy,scored,rocks,visual_group,user_labeled,Common name only
+f09,rock,easy,scored,rocks,visual_group,user_labeled,Common name only
