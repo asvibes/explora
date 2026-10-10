@@ -19,7 +19,9 @@ A local-first nature-walk journal. You photograph things on a walk, Explora keep
 | Nine-photo field test | **Pending** | Ground truth exists; no results collected |
 | User interface / web layer | **Not seen** | No UI or HTTP code was among the files reviewed |
 | Journal pages, polaroids, quests, "firsts" | **Tables only** | Schema exists; no logic reviewed |
-| License | **Not chosen** | `LICENSE` is a placeholder |
+| License | **MIT License** | License selected; implementation not reviewed |
+
+
 
 "Code written" means the code exists and has tests. It does not mean it has been verified end to end on a real walk.
 
