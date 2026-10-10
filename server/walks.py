@@ -15,7 +15,7 @@ import json
 import sqlite3
 from datetime import date, datetime
 
-from . import safety
+from . import firsts, safety
 from .config import Config
 from .identify import IdentifyResult, identify as _identify
 from .identify import load_prompt
@@ -158,6 +158,7 @@ def identify_discovery(conn, cfg: Config, discovery_id: int, identify_fn=None) -
          res.prompt_hash, res.elapsed_s, discovery_id),
     )
     conn.commit()
+    
     return get_discovery(conn, discovery_id)
 
 
@@ -193,6 +194,7 @@ def confirm(conn, discovery_id: int) -> dict:
         (Status.CONFIRMED.value, d["ai_identification"], d["ai_category"], discovery_id),
     )
     conn.commit()
+    firsts.record_first(conn, discovery_id)
     return get_discovery(conn, discovery_id)
 
 
@@ -214,6 +216,7 @@ def correct(conn, discovery_id: int, label: str, category: str | None = None) ->
         (Status.CONFIRMED.value, label, category, discovery_id),
     )
     conn.commit()
+    firsts.record_first(conn, discovery_id)
     return get_discovery(conn, discovery_id)
 
 
@@ -225,6 +228,7 @@ def _clear_final(conn, discovery_id: int, status: Status) -> dict:
         (status.value, discovery_id),
     )
     conn.commit()
+    
     return get_discovery(conn, discovery_id)
 
 
@@ -242,6 +246,7 @@ def set_note(conn, discovery_id: int, note: str) -> dict:
     get_discovery(conn, discovery_id)
     conn.execute("UPDATE discoveries SET user_note = ? WHERE id = ?", ((note or "").strip()[:2000], discovery_id))
     conn.commit()
+    
     return get_discovery(conn, discovery_id)
 
 
@@ -254,6 +259,7 @@ def set_captured_at(conn, discovery_id: int, iso_datetime: str) -> dict:
         (dt.isoformat(timespec="seconds"), discovery_id),
     )
     conn.commit()
+    
     return get_discovery(conn, discovery_id)
 
 
