@@ -151,4 +151,4 @@ Full detail and current results status: [docs/evaluation.md](docs/evaluation.md)
 
 ## License
 
-Not chosen yet. See `LICENSE` and decision D12 in [docs/decisions.md](docs/decisions.md).
+Explora is licensed under the [MIT License](LICENSE).
