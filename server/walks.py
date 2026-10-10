@@ -17,7 +17,7 @@ from datetime import date, datetime
 
 from . import safety
 from .config import Config
-from .identify import identify as _identify
+from .identify import IdentifyResult, identify as _identify
 from .identify import load_prompt
 from .models import HABITATS, USER_CATEGORIES, Status, suggestion_text
 
@@ -126,9 +126,18 @@ def identify_discovery(conn, cfg: Config, discovery_id: int, identify_fn=None) -
     if d["status"] == Status.CONFIRMED.value:
         raise ValueError("Already confirmed. Photos you confirmed are not re-identified.")
     prompt, phash = load_prompt(cfg.resolved_prompt())
-    fn = identify_fn or _identify
-    res = fn(cfg.data_dir / d["photo_path"], cfg.model, prompt, phash,
-             {"max_side": cfg.identify_max_side}, cfg.ollama_url)
+    if isinstance(identify_fn, IdentifyResult):
+        res = identify_fn
+    else:
+        fn = identify_fn or _identify
+        res = fn(
+            cfg.data_dir / d["photo_path"],
+            cfg.model,
+            prompt,
+            phash,
+            {"max_side": cfg.identify_max_side},
+            cfg.ollama_url,
+        )
     if res.status == "error":
         raise IdentifyError(res.error or "identification failed")
 

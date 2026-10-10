@@ -97,9 +97,30 @@ def main() -> int:
     ap.add_argument("--top-k", type=int)
     ap.add_argument("--timeout", type=float, default=300.0)
     ap.add_argument("--limit", type=int, help="only run the first N jobs (smoke testing)")
-    ap.add_argument("--allow-unfrozen", action="store_true",
-                    help="allow scored/probe runs with a prompt that is not frozen.txt")
+    ap.add_argument(
+        "--allow-unfrozen",
+        action="store_true",
+        help="allow scored/probe runs with a prompt that is not frozen.txt",
+    )
+    ap.add_argument(
+        "--allow-default-results",
+        action="store_true",
+        help="allow custom ground truth to write to the default results directory",
+    )
     args = ap.parse_args()
+
+    default_gt = (EVAL_DIR / "ground_truth.csv").resolve()
+    default_results = (EVAL_DIR / "results").resolve()
+
+    custom_gt = args.ground_truth.resolve() != default_gt
+    using_default_results = args.results_dir.resolve() == default_results
+
+    if custom_gt and using_default_results and not args.allow_default_results:
+        print(
+            "Refusing: custom ground truth requires its own results directory. "
+            "Use --results-dir to specify one, or --allow-default-results to override."
+        )
+        return 2
 
     scoring = bool({"scored", "probe"} & set(args.splits))
     if scoring and args.prompt.name != "frozen.txt" and not args.allow_unfrozen:
@@ -114,8 +135,29 @@ def main() -> int:
     if not args.ground_truth.exists():
         print(f"Ground truth not found: {args.ground_truth}")
         return 2
-    with args.ground_truth.open(newline="", encoding="utf-8") as f:
-        gt_rows = [r for r in csv.DictReader(f) if (r.get("split") or "").strip() in args.splits]
+        
+    with args.ground_truth.open(newline="", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        if not reader.fieldnames:
+            print("Invalid ground-truth CSV: missing header; expected photo_id and other fields.")
+            return 2
+
+        reader.fieldnames = [name.strip() for name in reader.fieldnames]
+
+        required = {"photo_id", "split"}
+        missing_columns = required - set(reader.fieldnames)
+        if missing_columns:
+            print(
+                f"Invalid ground-truth CSV: missing columns {sorted(missing_columns)}; "
+                f"found {reader.fieldnames}"
+            )
+            return 2
+
+        gt_rows = [
+            {key.strip(): value for key, value in row.items() if key is not None}
+            for row in reader
+            if (row.get("split") or "").strip() in args.splits
+        ]
     if not gt_rows:
         print("No ground-truth rows match the requested splits.")
         return 2
@@ -139,7 +181,11 @@ def main() -> int:
         print(f"{out.name} already holds rows from a different prompt ({', '.join(sorted(other_prompts))}). "
               "If the prompt changed, everything must be rerun: delete or move the file.")
         return 2
-    done = {(r["photo_id"], r["repeat_no"]) for r in existing if r.get("prompt_hash") == phash}
+    done = {
+        (r["photo_id"], r["repeat_no"])
+        for r in existing
+        if r.get("prompt_hash") == phash and r.get("status") == "ok"
+}
 
     settings: dict = {"max_side": args.max_side, "think": True if args.think else False, "options": {}}
     for key, val in (("temperature", args.temperature), ("top_p", args.top_p), ("top_k", args.top_k)):

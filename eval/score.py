@@ -241,7 +241,18 @@ def main() -> int:
     ap.add_argument("--use-auto", action="store_true",
                     help="count auto_match=Exact as graded when correctness is blank (unreviewed!)")
     ap.add_argument("--md", type=Path, help="also write the report to this markdown file")
-    args = ap.parse_args()
+    default_gt = (EVAL_DIR / "ground_truth.csv").resolve()
+    default_results = (EVAL_DIR / "results").resolve()
+
+    custom_gt = args.ground_truth.resolve() != default_gt
+    using_default_results = args.results_dir.resolve() == default_results
+
+    if custom_gt and using_default_results and not args.allow_default_results:
+        print(
+            "Refusing: custom ground truth requires its own results directory. "
+            "Use --results-dir to specify one, or --allow-default-results to override."
+        )
+        return 2
 
     paths = args.files or sorted(p for p in RESULTS_DIR.glob("*.csv"))
     if not paths:
