@@ -19,11 +19,15 @@ const pb=h('button',{class:'ph','aria-label':d?'Change photo':'Choose a photo'},
 return h('div',{class:'slot'},h('div',{class:'pol',style:`--t:${p.tilt||0}deg;padding-bottom:10px`},h('div',{class:'tape'}),
 h('button',{class:'x','aria-label':`Remove Polaroid ${p.slot}`,onclick:()=>set(`${base}/polaroids/${p.slot}`,{method:'DELETE'})},h('span',{text:'×'})),pb,cap,note))}
 const nav=(w,cls,txt)=>w&&h('button',{class:'btn sm nav '+cls,text:txt(fmt(w.walk.date,false,true)),onclick:()=>location.hash='#/journal/'+w.walk.id});
+function zoom(lp){const odd=lp.rotation%180!==0;
+const sz=odd?'max-width:72vh;max-height:min(88vw,1000px)':'max-width:100%;max-height:72vh';
+const dlg=h('dialog',{class:'picker zoom','aria-label':'Your handwritten page'},h('div',{class:'zbox'},h('img',{src:lp.url,alt:'Your handwritten page',style:`${sz};width:auto;height:auto;transform:rotate(${lp.rotation}deg)`})),h('button',{class:'btn',text:'Close',onclick:()=>dlg.close()}));
+dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});dlg.addEventListener('close',()=>dlg.remove());document.body.append(dlg);dlg.showModal()}
 const book=h('div',{class:'book'}),under=h('div',{class:'under'});
 function draw(){const lp=j.left_page,odd=lp.rotation%180!==0;
 const left=h('section',{class:'pg left','aria-label':'Your handwritten page'},
 lp.url?[h('div',{class:'opts'},h('span',{class:'lbl',text:'••• Page options'}),h('div',{class:'menu'},h('button',{class:'btn sm',text:'Rotate',onclick:()=>set(base+'/left-page/rotate',{method:'POST',json:{degrees:90}})}),fileBtn('Replace',putPage),h('button',{class:'btn sm',text:'Remove',onclick:()=>set(base+'/left-page',{method:'DELETE'})}))),
-h('img',{class:'scan',src:lp.url,alt:'Photo of your handwritten page',style:`transform:rotate(${lp.rotation}deg)${odd?' scale(.72)':''}`})]
+h('button',{class:'zbtn','aria-label':'View your page larger',onclick:()=>zoom(lp)},h('img',{class:'scan',src:lp.url,alt:'Photo of your handwritten page',style:`transform:rotate(${lp.rotation}deg)${odd?' scale(.72)':''}`}))]
 :h('div',{class:'inv'},h('p',{text:'Your own page goes here, if you have one.'}),fileBtn('Add a photo of your page',putPage)),
 nav(pw,'l',t=>'‹ '+t));
 const right=h('section',{class:'pg right','aria-label':'Photos'},j.polaroids.map(slot),nav(nw,'r',t=>t+' ›'));

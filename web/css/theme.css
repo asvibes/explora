@@ -66,3 +66,11 @@ dialog.picker{background:var(--card);color:var(--ink);border:1px solid var(--lin
 .list{display:flex;flex-wrap:wrap;gap:20px}.fcard{width:170px}
 
 .cnote{display:block;min-height:16px;padding:0 6px;font-size:12px;font-style:italic;color:#6a6454}
+
+.pg.left{padding:54px 14px}.scan{display:block;max-width:100%;max-height:560px;width:auto;height:auto}
+.zbtn{display:block;max-width:100%;padding:0;border:0;background:none;cursor:zoom-in}
+dialog.zoom{max-width:96vw;width:auto;text-align:center}.zbox{width:min(92vw,900px);height:78vh;display:grid;place-items:center;overflow:hidden;margin-bottom:10px}.zbox img{display:block;max-width:100%;max-height:100%}
+
+dialog.picker.zoom{width:fit-content;max-width:96vw;padding:14px;margin:auto;overflow:hidden;text-align:center}
+.zoom .zbox{display:flex;align-items:center;justify-content:center;width:min(90vw,1000px);height:72vh;overflow:hidden;margin:0 0 10px}
+.zoom .zbox img{display:block;flex:none;object-fit:contain}
