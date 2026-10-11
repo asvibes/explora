@@ -1,16 +1,11 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Explora</title>
-  <link rel="manifest" href="/phone/manifest.json">
-  <meta name="theme-color" content="#3f6b3a">
-  <link rel="icon" href="/phone/icons/icon-192.png">
-</head>
-<body>
-  <main id="app"></main>
-  <script src="/phone/capture-queue.js"></script>
-  <script>ExploraCapture.mount(document.getElementById("app"));</script>
-</body>
-</html>
+<html lang="en" data-theme="light"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explora</title><link rel="stylesheet" href="css/theme.css"></head><body>
+<header class="bar"><a class="brand" href="#/home"><span class="logo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#3d6b45" stroke-width="2" stroke-linecap="round"><path d="M12 21v-9M12 12c0-4 3-6 7-6 0 4-3 6-7 6zM12 14c0-3-2-5-6-5 0 3 2 5 6 5z"/></svg></span><i>Explora</i></a>
+<nav aria-label="Main"><a data-p="home" href="#/home">Home</a><a data-p="walk" href="#/walk">Today’s walk</a><a data-p="journal" href="#/journal">Journal</a><a data-p="collection" href="#/collection">Collection</a><a data-p="firsts" href="#/firsts">Firsts</a></nav>
+<button id="theme" class="tbtn" aria-label="Switch light or dark theme"></button></header>
+<main id="view"></main>
+<footer class="foot">Identified on your laptop. Nothing uploaded.</footer>
+<div id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="js/main.js"></script></body></html>
