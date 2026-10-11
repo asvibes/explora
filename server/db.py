@@ -85,6 +85,11 @@ CREATE TABLE IF NOT EXISTS firsts (
     walk_id      INTEGER NOT NULL REFERENCES walks(id) ON DELETE CASCADE,
     created_at   TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS walk_thumbnails (
+    walk_id      INTEGER PRIMARY KEY REFERENCES walks(id) ON DELETE CASCADE,
+    discovery_id INTEGER NOT NULL REFERENCES discoveries(id) ON DELETE CASCADE
+);
 """
 
 

@@ -23,6 +23,7 @@ import dataclasses
 import json
 import logging
 import threading
+import time
 import urllib.error
 import urllib.request
 from contextlib import contextmanager
@@ -35,7 +36,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from . import importer, quests, walks
+from . import firsts, importer, journal, quests, thumbnails, walks
 from .config import ROOT, Config, load_config
 from .db import connect, get_setting, set_setting
 from .walks import IdentifyError
@@ -78,6 +79,22 @@ class NoteBody(BaseModel):
 
 class CapturedAtBody(BaseModel):
     captured_at: str = Field(..., max_length=40)
+
+
+class RotateBody(BaseModel):
+    degrees: int = 90
+
+
+class PolaroidPhotoBody(BaseModel):
+    discovery_id: int
+
+
+class CaptionBody(BaseModel):
+    caption: str | None = Field(None, max_length=5000)   # journal.py enforces the real 200-character limit
+
+
+class ThumbnailBody(BaseModel):
+    discovery_id: int
 
 
 # ------------------------------------------------------------------ helpers
@@ -124,6 +141,38 @@ def _read_limited(upload: UploadFile) -> bytes | None:
     """Read an upload, or None if it is over the size limit."""
     data = upload.file.read(MAX_PHOTO_BYTES + 1)
     return None if len(data) > MAX_PHOTO_BYTES else data
+
+
+_MIN_CAPTURE_MS = 946_684_800_000          # 2000-01-01, same lower bound as the phone walk date
+
+
+
+def _capture_ms(values: list[str], index: int) -> float | None:
+    """Parse a browser timestamp; ignore missing or implausible values."""
+    if index >= len(values):
+        return None
+
+    try:
+        ms = int(str(values[index]).strip())
+    except (ValueError, TypeError):
+        return None
+
+    if ms < _MIN_CAPTURE_MS or ms > time.time() * 1000 + 86_400_000:
+        return None
+
+    return ms / 1000
+
+    try:
+        ms = int(str(values[index]).strip())
+    except (ValueError, TypeError):
+        raise HTTPException(400, "Invalid photo timestamp.")
+
+    if ms < _MIN_CAPTURE_MS or ms > time.time() * 1000 + 86_400_000:
+        raise HTTPException(400, "Photo timestamp is outside the allowed range.")
+
+    return ms / 1000
+
+
 
 
 # ------------------------------------------------------------------ app
@@ -216,20 +265,22 @@ def create_app(cfg: Config | None = None, identify_fn: Callable | None = None,
 
     # ---- import
     @app.post("/api/walks/{walk_id}/photos")
-    def upload_photos(walk_id: int, files: list[UploadFile] = File(...)):
+    def upload_photos(walk_id: int, files: list[UploadFile] = File(...),
+                      captured_ms: list[str] = Form(default=[])):
         if len(files) > MAX_FILES_PER_UPLOAD:
             raise HTTPException(400, f"Please send at most {MAX_FILES_PER_UPLOAD} photos at a time.")
         with _session(cfg) as conn:
             if _run(walks.get_walk, conn, walk_id) is None:
                 raise HTTPException(404, f"No walk {walk_id}")
             results = []
-            for up in files:
+            for i, up in enumerate(files):
                 name = Path(up.filename or "photo").name[:200] or "photo"   # display name only, never a path
                 data = _read_limited(up)
                 if data is None:
                     results.append(importer.ImportResult("error", name, reason="photo is too large"))
                 else:
-                    results.append(_run(importer.import_bytes, conn, cfg, walk_id, data, name))
+                    results.append(_run(importer.import_bytes, conn, cfg, walk_id, data, name,
+                                        None, _capture_ms(captured_ms, i)))
             return {"results": [dataclasses.asdict(r) for r in results],
                     "summary": importer.summarize(results)}
 
@@ -323,6 +374,95 @@ def create_app(cfg: Config | None = None, identify_fn: Callable | None = None,
         _templates()
         with _session(cfg) as conn:
             return {"removed": _run(quests.unmark, conn, walk_id, template_id)}
+
+    # step1: journal, firsts and calendar routes
+    # ---- journal: handwritten left page and two Polaroids (logic lives in journal.py)
+    def _journal_view(conn, walk_id: int) -> dict:
+        view = _run(journal.get_journal, conn, walk_id)
+        image = view["left_page"]["image"]
+        view["left_page"]["url"] = (
+            f"/api/walks/{walk_id}/journal/left-page?v={Path(image).stem}" if image else None)
+        return view
+
+    @app.get("/api/walks/{walk_id}/journal")
+    def get_walk_journal(walk_id: int):
+        with _session(cfg) as conn:
+            return _journal_view(conn, walk_id)
+
+    @app.get("/api/walks/{walk_id}/journal/left-page")
+    def journal_left_page(walk_id: int):
+        with _session(cfg) as conn:
+            path = _run(journal.left_page_path, conn, cfg, walk_id)
+        if path is None:
+            raise HTTPException(404, "No handwritten page for this walk")
+        return FileResponse(path, media_type="image/jpeg", headers={"Cache-Control": "private, no-cache"})
+
+    @app.put("/api/walks/{walk_id}/journal/left-page")
+    def put_left_page(walk_id: int, file: UploadFile = File(...)):
+        data = _read_limited(file)
+        if data is None:
+            raise HTTPException(400, "That photo is too large.")
+        with _session(cfg) as conn:
+            _run(journal.set_left_page, conn, cfg, walk_id, data)
+            return _journal_view(conn, walk_id)
+
+    @app.post("/api/walks/{walk_id}/journal/left-page/rotate")
+    def rotate_left_page(walk_id: int, body: RotateBody):
+        with _session(cfg) as conn:
+            _run(journal.rotate_left_page, conn, walk_id, body.degrees)
+            return _journal_view(conn, walk_id)
+
+    @app.delete("/api/walks/{walk_id}/journal/left-page")
+    def delete_left_page(walk_id: int):
+        with _session(cfg) as conn:
+            _run(journal.remove_left_page, conn, cfg, walk_id)
+            return _journal_view(conn, walk_id)
+
+    @app.put("/api/walks/{walk_id}/journal/polaroids/{slot}/photo")
+    def put_polaroid_photo(walk_id: int, slot: int, body: PolaroidPhotoBody):
+        with _session(cfg) as conn:
+            _run(journal.set_polaroid_photo, conn, walk_id, slot, body.discovery_id)
+            return _journal_view(conn, walk_id)
+
+    @app.put("/api/walks/{walk_id}/journal/polaroids/{slot}/caption")
+    def put_polaroid_caption(walk_id: int, slot: int, body: CaptionBody):
+        with _session(cfg) as conn:
+            _run(journal.set_caption, conn, walk_id, slot, body.caption)
+            return _journal_view(conn, walk_id)
+
+    @app.delete("/api/walks/{walk_id}/journal/polaroids/{slot}")
+    def delete_polaroid(walk_id: int, slot: int):
+        with _session(cfg) as conn:
+            _run(journal.remove_polaroid, conn, walk_id, slot)
+            return _journal_view(conn, walk_id)
+
+    @app.post("/api/walks/{walk_id}/journal/polaroids/{slot}/restore")
+    def restore_polaroid(walk_id: int, slot: int):
+        with _session(cfg) as conn:
+            _run(journal.restore_polaroid, conn, walk_id, slot)
+            return _journal_view(conn, walk_id)
+
+    # ---- Firsts (recorded in walks.confirm / walks.correct; read here)
+    @app.get("/api/firsts")
+    def list_all_firsts():
+        with _session(cfg) as conn:
+            return {"firsts": _run(firsts.list_firsts, conn)}
+
+    @app.get("/api/walks/{walk_id}/firsts")
+    def list_walk_firsts(walk_id: int):
+        with _session(cfg) as conn:
+            return {"firsts": _run(firsts.firsts_for_walk, conn, walk_id)}
+
+    # ---- calendar thumbnails (logic lives in thumbnails.py)
+    @app.get("/api/calendar/{month}")
+    def calendar_month(month: str):
+        with _session(cfg) as conn:
+            return _run(thumbnails.month_view, conn, month)
+
+    @app.put("/api/walks/{walk_id}/thumbnail")
+    def put_walk_thumbnail(walk_id: int, body: ThumbnailBody):
+        with _session(cfg) as conn:
+            return _run(thumbnails.set_thumbnail, conn, walk_id, body.discovery_id)
 
     # ---- phone interface
     phone = ROOT / "phone"

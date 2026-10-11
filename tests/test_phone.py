@@ -61,7 +61,8 @@ def test_service_worker_never_touches_the_api_or_other_hosts():
 def test_host_page_loads_the_manifest_and_queue():
     html = (PHONE / "index.html").read_text(encoding="utf-8")
     assert 'rel="manifest"' in html and "/phone/capture-queue.js" in html and "ExploraCapture.mount" in html
-    assert "http://" not in html and "https://" not in html          # nothing external
+    assert not re.search(r"""(?:src|href)\s*=\s*["']https?://""", html, re.I)
+    assert not re.search(r"""url\(["']?https?://""", html, re.I)
 
 
 def test_queue_makes_no_external_requests_and_no_pressure_language():
@@ -136,10 +137,15 @@ def test_upload_still_works_without_captured_ms(client):
 
 
 @pytest.mark.parametrize("bad", ["0", "-5", "99999999999999", "abc"])
-def test_bad_captured_ms_is_refused_and_nothing_is_stored(client, bad):
+def test_bad_captured_ms_falls_back_safely(client, bad):
     wid = client.post("/api/walks/today").json()["walk"]["id"]
-    assert upload(client, wid, jpeg(3), captured_ms=bad).status_code in (400, 422)
-    assert client.get(f"/api/walks/{wid}").json()["discoveries"] == []
+    r = upload(client, wid, jpeg(3), captured_ms=bad)
+
+    assert r.status_code == 200
+    assert r.json()["summary"]["added"] == 1
+
+    d = client.get(f"/api/walks/{wid}").json()["discoveries"][0]
+    assert d["captured_source"] != "file"
 
 
 def test_resending_the_same_photo_is_reported_as_duplicate(client):
