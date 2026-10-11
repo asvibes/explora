@@ -61,10 +61,15 @@
 ### Phone
 
 **Mobile Capture**
-![Mobile Capture](docs/screenshots/phone.jpeg)
+<p align="center">
+  <img src="docs/screenshots/phone.jpeg" alt="Explora mobile capture interface" width="300">
+</p>
 
-**Photos Sent to Laptop**
-![Photos Sent to Laptop](docs/screenshots/phonesenttolaptop.jpeg)
+### Photos Sent to Laptop
+
+<p align="center">
+  <img src="docs/screenshots/phonesenttolaptop.jpeg" alt="Photos sent from phone to laptop" width="300">
+</p>
 <!-- Add after taking it, then delete this comment:
 ![Phone capture queue](docs/screenshots/phone-capture.png)
 -->
