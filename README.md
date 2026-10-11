@@ -14,73 +14,101 @@
 
 ## Contents
 
-1. [Features](#features)
-2. [How it works](#how-it-works)
-3. [Tech stack](#tech-stack)
-4. [Project structure](#project-structure)
-5. [Setup](#setup)
-6. [Local Gemma with Ollama](#local-gemma-with-ollama)
-7. [Running the app](#running-the-app)
-8. [Using the phone capture page (optional)](#using-the-phone-capture-page-optional)
-9. [HTTP API](#http-api)
-10. [Safety and privacy](#safety-and-privacy)
-11. [Testing](#testing)
-12. [Evaluation](#evaluation)
-13. [Limitations](#limitations)
-14. [Documentation](#documentation)
-15. [License](#license)
+1. [Screenshots](#screenshots)
+2. [Features](#features)
+3. [How it works](#how-it-works)
+4. [Tech stack](#tech-stack)
+5. [Project structure](#project-structure)
+6. [Setup](#setup)
+7. [Local Gemma with Ollama](#local-gemma-with-ollama)
+8. [Running the app](#running-the-app)
+9. [Using the phone capture page](#using-the-phone-capture-page)
+10. [HTTP API](#http-api)
+11. [Safety and privacy](#safety-and-privacy)
+12. [Testing](#testing)
+13. [Evaluation](#evaluation)
+14. [Limitations](#limitations)
+15. [Documentation](#documentation)
+16. [License](#license)
+
+---
+
+## Screenshots
+
+### Laptop
+
+**Home**
+![Explora Home](docs/screenshots/home.png)
+
+**Journal**
+![Explora Journal](docs/screenshots/journal.png)
+
+**Calendar**
+![Calendar with walk thumbnails](docs/screenshots/calendarthumbnail.png)
+
+**Nature Quests**
+![Nature Quests](docs/screenshots/quests.png)
+
+
+**Today's Walk**
+![Today's Walk](docs/screenshots/todayswalk.png)
+<!-- Add these once you have taken them, then delete this comment:
+![Home with the month calendar](docs/screenshots/home.png)
+![Today's walk with identification cards](docs/screenshots/walk.png)
+![Journal spread in the light theme](docs/screenshots/journal-light.png)
+-->
+
+### Phone
+
+**Mobile Capture**
+![Mobile Capture](docs/screenshots/phone.jpeg)
+
+**Photos Sent to Laptop**
+![Photos Sent to Laptop](docs/screenshots/phonesenttolaptop.jpeg)
+<!-- Add after taking it, then delete this comment:
+![Phone capture queue](docs/screenshots/phone-capture.png)
+-->
 
 ---
 
 ## Features
 
-## Photo Import: Laptop and Mobile
+### Walks
 
-Explora supports two ways to bring photos into your nature journal: directly from your laptop or through the optional mobile capture page.
+One walk per day, with an optional typed place (never GPS), a habitat (`park`, `garden`, `campus`, `trail`, `backyard`) and a duration of 1 to 1440 minutes. A walk with no photos and no writing is perfectly valid. Streets and water edges are deliberately not offered as habitats.
 
-### Laptop — Main Journal
+### Photo import: laptop and phone
 
-Import photos directly into Explora from your laptop.
+Explora has two ways to bring photos in. The laptop runs the main journal, the database and the local AI model. The phone page is a small companion for capturing and sending photos, not a second copy of the journal.
 
-* **Choose photos:** Select images using the file picker or drag and drop them into the web app.
-* **Import multiple photos:** Upload up to 100 photos at once, with a maximum file size of 30 MB per photo.
-* **Automatic duplicate detection:** Explora uses SHA-256 hashes of the original files to skip exact duplicates.
-* **Privacy-conscious processing:** Imported photos are resized and re-encoded as JPEGs without EXIF metadata, including GPS coordinates.
-* **Local identification:** Ask your locally running Gemma model to suggest what each photo shows.
+#### Laptop (main journal)
 
-### Mobile — Capture and Send
+- **Choose photos** with the file picker or by dragging and dropping them onto the page.
+- **Up to 100 photos per upload,** with a maximum of 30 MB each.
+- **Duplicates are skipped** using a SHA-256 hash of the original bytes.
+- **Capture time** comes from EXIF `DateTimeOriginal`, then EXIF `DateTime`, then the browser's `File.lastModified`, then the file's modified time, then now. The source is recorded and the date can be edited.
+- **Privacy-conscious storage.** Only a resized JPEG copy is stored (longest side 1024 px), re-encoded **without EXIF**, so GPS coordinates in your originals never enter the data folder.
+- **Local identification.** Ask your locally running Gemma model to suggest what each photo shows.
 
-Use Explora's optional phone interface to capture photos while exploring outdoors and transfer them to your laptop later.
+#### Phone (optional capture page)
 
-* **Take or select photos:** Use your phone's camera or choose existing photos from its gallery.
-* **Queue photos locally:** Photos wait in the phone browser's IndexedDB storage until you choose to send them.
-* **Send when ready:** Connect to your laptop and tap **Send to laptop** to transfer queued photos.
-* **Handle interruptions:** A photo remains queued until the laptop confirms receipt, allowing you to retry after a failed transfer.
-* **Identify at home:** The phone does not run the identification model. Photos are identified by Gemma on your laptop after import.
+- **Take or choose photos** with your phone's camera or gallery.
+- **Photos wait on the phone** in the browser's IndexedDB storage until you choose to send them.
+- **Tap "Send to laptop"** when you are connected. A photo counts as sent only after the laptop confirms it, so a failed transfer can simply be retried.
+- **The phone never identifies anything.** Queued photos read "Waiting to be identified. Take it home to learn more."
 
-### How the two interfaces work together
+#### How the two work together
 
-1. Take photos during your walk using your phone.
-2. Keep them in the mobile capture queue until you're ready to transfer them.
-3. Connect your phone to your laptop using a supported connection method.
-4. Send the photos to Explora running on your laptop.
-5. Open the main journal, identify the imported photos with local Gemma, and confirm or correct the suggestions.
-6. Arrange your discoveries on the journal page.
+1. Take photos during your walk with your phone.
+2. Keep them in the phone's capture queue until you are ready.
+3. Connect the phone to the laptop (see [Using the phone capture page](#using-the-phone-capture-page)) and send them.
+4. Open Explora on the laptop, identify the photos with local Gemma, and confirm or correct the suggestions.
+5. Arrange your discoveries on the journal page.
 
-**The distinction:** The laptop runs the main journal, database, and local AI model. The phone page is a companion for capturing and transferring photos, not a separate copy of the complete journal.
+> **Privacy note.** Phone-to-laptop traffic over ordinary Wi-Fi is unencrypted, so use it only on a network you trust. Once imported, photos live on the laptop. The phone browser keeps its own queue until photos are confirmed as sent.
 
-**Privacy note:** The phone-to-laptop connection over ordinary Wi-Fi is unencrypted. Use it only on a trusted private network. Photos are stored on the laptop after import; the phone browser maintains its own capture queue.
+### Identification (local Gemma via Ollama)
 
-
-**Walks.** One walk per day, with an optional typed place (never GPS), a habitat (`park`, `garden`, `campus`, `trail`, `backyard`) and a duration of 1 to 1440 minutes. A walk with no photos and no writing is perfectly valid. Streets and water edges are deliberately not offered as habitats.
-
-**Photo import.**
-- Pick files or drag and drop, up to 100 photos per upload and 30 MB each.
-- Duplicates are skipped using a SHA-256 hash of the original bytes.
-- Capture time comes from EXIF `DateTimeOriginal`, then EXIF `DateTime`, then the browser's `File.lastModified`, then the file's modified time, then now. The source is recorded and the date can be edited.
-- Only a resized JPEG copy is stored (longest side 1024 px), re-encoded **without EXIF**, so GPS coordinates in your originals never enter the data folder.
-
-**Identification (local Gemma via Ollama).**
 - Photos are identified one at a time so each card updates as it finishes.
 - Each result has a category, a name (as specific as the model can honestly be, possibly only a group such as "a swallowtail butterfly"), a confidence of High, Medium or Low, a short explanation and an optional "Did you know?" fact.
 - Malformed output is never dropped or treated as confident. It becomes "Not sure what this is."
@@ -93,22 +121,33 @@ Use Explora's optional phone interface to capture photos while exploring outdoor
 
 A Low or unidentified result cannot be confirmed. Correcting a photo with your own words counts as confirmed by you. A confirmed photo is never re-identified.
 
-**Journal.** An open-book spread for each walk:
-- *Left page:* a photo of your own handwritten page. Upload, replace, rotate or remove it. Explora never reads, OCRs or scans it. Rotation is only a stored number, and the file is never rewritten.
-- *Right page:* two Polaroid slots. Each holds one of that walk's photos and a caption of up to 200 characters (too long is refused, never silently cut). Either slot can be removed and brought back, so two, one or none are all fine. Tilt is up to 3 degrees and is derived from a stable id, so the page looks identical after every reload.
+### Journal
+
+An open-book spread for each walk:
+
+- *Left page:* a photo of your own handwritten page. Upload, replace, rotate or remove it, and click it to view it larger. Explora never reads, OCRs or scans it. Rotation is only a stored number, and the file is never rewritten.
+- *Right page:* two Polaroid slots. Each holds one of that walk's photos and a caption of up to 200 characters (too long is refused, never silently cut). Captions save as you type. Either slot can be removed and brought back, so two, one or none are all fine. Tilt is up to 3 degrees and is derived from a stable id, so the page looks identical after every reload.
 - *Navigation:* previous and next walk by date, with a short fade.
 
-**Calendar.** A Sunday-first month grid on Home. Days with a walk show a small tilted Polaroid. If a walk has more than one photo, a "+N" badge opens a picker to choose which photo represents the day. The choice is saved in the database and survives restarts. When you haven't chosen, the thumbnail falls back to the photo in Polaroid slot 1, then the first confirmed photo, then the first photo.
+### Calendar
 
-**Firsts.** A quiet note when a *confirmed* photo is the first of its category (for example "First butterfly"). Category level only, one per category, never reassigned, and `other` never earns one. There are no points, levels or "next First" hints.
+A Sunday-first month grid on Home. Days with a walk show a small tilted Polaroid. If a walk has more than one photo, a "+N" badge opens a picker to choose which photo represents the day. The choice is saved in the database and survives restarts. When you haven't chosen, the thumbnail falls back to the photo in Polaroid slot 1, then the first confirmed photo, then the first photo.
 
-**Optional walk ideas.** Suggestions come from a fixed, reviewed list of photograph-only templates (`server/content/quest_templates.json`). Nothing is awarded automatically. An idea is done only when you tap "I did this", and it appears only on that walk. If the template file is missing or fails the safety scan, ideas switch off and the rest of the app keeps working.
+### Firsts
 
-**Collection.** Plain counts of confirmed discoveries by category. No percentage, target, rank or progress.
+A quiet note when a *confirmed* photo is the first of its category (for example "First butterfly"). Category level only, one per category, never reassigned, and `other` never earns one. There are no points, levels or "next First" hints.
 
-**Light and dark themes.** Cream paper on a green desk, or charcoal paper on a near-black desk. The choice is saved in the `theme` setting.
+### Optional walk ideas
 
-**Phone capture queue (optional).** A small installable page at `/phone` that holds photos on the phone until you tap "Send to laptop". The phone never identifies anything.
+Suggestions come from a fixed, reviewed list of photograph-only templates (`server/content/quest_templates.json`). Nothing is awarded automatically. An idea is done only when you tap "I did this", and it appears only on that walk. If the template file is missing or fails the safety scan, ideas switch off and the rest of the app keeps working.
+
+### Collection
+
+Plain counts of confirmed discoveries by category. No percentage, target, rank or progress.
+
+### Light and dark themes
+
+Cream paper on a green desk, or charcoal paper on a near-black desk. The choice is saved in the `theme` setting.
 
 ---
 
@@ -172,7 +211,8 @@ imported -> identified -> confirmed            (confirm, or correct)
 explora/
 ├── README.md, LICENSE, pyproject.toml, .gitignore
 ├── data/                  # your database and photos (never committed)
-├── docs/                  # architecture, decisions, evaluation, field test
+├── docs/                  # architecture, decisions, evaluation, field test,
+│   └── screenshots/       #   and the images used in this README
 ├── eval/
 │   ├── ground_truth.csv
 │   ├── run_eval.py        # runs one model x one condition
@@ -306,16 +346,16 @@ Data is saved in `data/explora.db` and `data/photos/` (or wherever `EXPLORA_DATA
 
 ---
 
-## Using the phone capture page (optional)
+## Using the phone capture page
 
-The phone page (`/phone`) is a stretch feature. It lets you take or add photos on an Android phone and send them to the laptop later. Photos wait in the phone browser's storage (IndexedDB), and a photo counts as *sent* only after the laptop confirms it received it, so a dropped connection never loses a photo. The phone's own gallery keeps your originals. The phone never identifies anything: queued photos read "Waiting to be identified. Take it home to learn more."
+The phone page (`/phone`) is optional. It lets you take or add photos on an Android phone and send them to the laptop later. See [Photo import](#photo-import-laptop-and-phone) for what it does. Originals are sent unchanged, and the laptop's duplicate check recognises a photo that also arrives some other way (USB copy, Nearby Share). The walk a photo lands in is chosen from the day it was taken.
 
 Two ways to reach the laptop:
 
 - **Over USB (recommended, secure).** With Android debugging enabled, run `adb reverse tcp:8000 tcp:8000`, then open `http://localhost:8000/phone/` on the phone. This counts as a secure context, so the service worker can register and the page opens offline.
 - **Over home Wi-Fi.** Start the server with `python -m server.main --host 0.0.0.0` and open `http://<laptop-ip>:8000/phone/`. This turns the `Host` check off, and traffic is **unencrypted**, so use it only on a network you trust. Browsers refuse service workers on plain `http://<ip>` pages, so the page won't open offline there, but the queue still works while the page is open.
 
-Originals are sent unchanged, and the laptop's duplicate check recognises a photo that also arrives some other way (USB copy, Nearby Share). The walk a photo lands in is chosen from the day it was taken.
+The phone's own gallery keeps your originals, and the queue is only a copy.
 
 ---
 
