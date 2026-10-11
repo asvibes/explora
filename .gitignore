@@ -10,3 +10,17 @@ eval/results/*.backup.csv
 eval/results/*_recovered/
 eval/results/retry_test/
 eval/test_run_eval_safety_backup.txt
+
+# Local dependencies
+node_modules/
+
+# Local patch helpers and backups
+apply_phone_patch.py
+server/*.bak
+explora_step1/
+
+# Evaluation backups
+eval/results/*.bak
+
+# Local user data
+data/
