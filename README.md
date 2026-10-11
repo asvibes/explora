@@ -34,6 +34,44 @@
 
 ## Features
 
+## Photo Import: Laptop and Mobile
+
+Explora supports two ways to bring photos into your nature journal: directly from your laptop or through the optional mobile capture page.
+
+### Laptop — Main Journal
+
+Import photos directly into Explora from your laptop.
+
+* **Choose photos:** Select images using the file picker or drag and drop them into the web app.
+* **Import multiple photos:** Upload up to 100 photos at once, with a maximum file size of 30 MB per photo.
+* **Automatic duplicate detection:** Explora uses SHA-256 hashes of the original files to skip exact duplicates.
+* **Privacy-conscious processing:** Imported photos are resized and re-encoded as JPEGs without EXIF metadata, including GPS coordinates.
+* **Local identification:** Ask your locally running Gemma model to suggest what each photo shows.
+
+### Mobile — Capture and Send
+
+Use Explora's optional phone interface to capture photos while exploring outdoors and transfer them to your laptop later.
+
+* **Take or select photos:** Use your phone's camera or choose existing photos from its gallery.
+* **Queue photos locally:** Photos wait in the phone browser's IndexedDB storage until you choose to send them.
+* **Send when ready:** Connect to your laptop and tap **Send to laptop** to transfer queued photos.
+* **Handle interruptions:** A photo remains queued until the laptop confirms receipt, allowing you to retry after a failed transfer.
+* **Identify at home:** The phone does not run the identification model. Photos are identified by Gemma on your laptop after import.
+
+### How the two interfaces work together
+
+1. Take photos during your walk using your phone.
+2. Keep them in the mobile capture queue until you're ready to transfer them.
+3. Connect your phone to your laptop using a supported connection method.
+4. Send the photos to Explora running on your laptop.
+5. Open the main journal, identify the imported photos with local Gemma, and confirm or correct the suggestions.
+6. Arrange your discoveries on the journal page.
+
+**The distinction:** The laptop runs the main journal, database, and local AI model. The phone page is a companion for capturing and transferring photos, not a separate copy of the complete journal.
+
+**Privacy note:** The phone-to-laptop connection over ordinary Wi-Fi is unencrypted. Use it only on a trusted private network. Photos are stored on the laptop after import; the phone browser maintains its own capture queue.
+
+
 **Walks.** One walk per day, with an optional typed place (never GPS), a habitat (`park`, `garden`, `campus`, `trail`, `backyard`) and a duration of 1 to 1440 minutes. A walk with no photos and no writing is perfectly valid. Streets and water edges are deliberately not offered as habitats.
 
 **Photo import.**
