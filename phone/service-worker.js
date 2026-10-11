@@ -11,7 +11,7 @@
  */
 "use strict";
 
-const VERSION = "explora-phone-v2";   // bump when any file below changes, so old caches are dropped
+const VERSION = "explora-phone-v3";   // bump when any file below changes, so old caches are dropped
 const SHELL = [
   "/phone/",
   "/phone/index.html",
