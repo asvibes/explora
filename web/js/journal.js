@@ -8,13 +8,16 @@ const putPage=f=>{const fd=new FormData();fd.append('file',f);set(base+'/left-pa
 function slot(p){
 if(p.removed)return h('div',{class:'slot gone'},h('button',{class:'btn',text:'Bring back',onclick:()=>set(`${base}/polaroids/${p.slot}/restore`,{method:'POST'})}));
 const d=p.discovery,cap=h('input',{class:'cap',type:'text',value:p.caption,placeholder:'Write a caption…','aria-label':`Caption for Polaroid ${p.slot}`});
-const save=async()=>{const v=cap.value.trim();if(v===p.caption)return;if(v.length>200){say('That caption is too long (200 characters max). Please shorten it.');return}
-try{j=await api(`${base}/polaroids/${p.slot}/caption`,{method:'PUT',json:{caption:v}});p.caption=v}catch(e){say(e.message)}};
-cap.onblur=save;cap.onkeydown=e=>e.key==='Enter'&&cap.blur();
+const note=h('span',{class:'cnote',role:'status'});let tm;
+const save=async()=>{clearTimeout(tm);const v=cap.value.trim();if(v===p.caption)return;
+if(v.length>200){note.textContent='Too long: 200 characters max. Please shorten it.';return}
+note.textContent='Saving…';try{j=await api(`${base}/polaroids/${p.slot}/caption`,{method:'PUT',json:{caption:v}});p.caption=v;note.textContent='Saved'}catch(e){note.textContent='Not saved';say(e.message)}};
+cap.setAttribute('autocomplete','off');cap.addEventListener('input',()=>{note.textContent='';clearTimeout(tm);tm=setTimeout(save,700)});
+cap.addEventListener('change',save);cap.addEventListener('blur',save);cap.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();save()}});
 const open=b=>pickPhoto(id,p.discovery_id,'Choose a photo for this Polaroid',async did=>{j=await api(`${base}/polaroids/${p.slot}/photo`,{method:'PUT',json:{discovery_id:did}});draw()},b).catch(e=>say(e.message));
 const pb=h('button',{class:'ph','aria-label':d?'Change photo':'Choose a photo'},d?h('img',{src:photo(d.id),alt:'',style:'width:100%;aspect-ratio:1;object-fit:cover;display:block'}):h('div',{class:'empty',text:'Choose a photo'}));pb.onclick=()=>open(pb);
 return h('div',{class:'slot'},h('div',{class:'pol',style:`--t:${p.tilt||0}deg;padding-bottom:10px`},h('div',{class:'tape'}),
-h('button',{class:'x','aria-label':`Remove Polaroid ${p.slot}`,onclick:()=>set(`${base}/polaroids/${p.slot}`,{method:'DELETE'})},h('span',{text:'×'})),pb,cap))}
+h('button',{class:'x','aria-label':`Remove Polaroid ${p.slot}`,onclick:()=>set(`${base}/polaroids/${p.slot}`,{method:'DELETE'})},h('span',{text:'×'})),pb,cap,note))}
 const nav=(w,cls,txt)=>w&&h('button',{class:'btn sm nav '+cls,text:txt(fmt(w.walk.date,false,true)),onclick:()=>location.hash='#/journal/'+w.walk.id});
 const book=h('div',{class:'book'}),under=h('div',{class:'under'});
 function draw(){const lp=j.left_page,odd=lp.rotation%180!==0;
