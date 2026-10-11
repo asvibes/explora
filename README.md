@@ -469,6 +469,14 @@ Useful flags: `--splits`, `--limit` (smoke test), `--max-side` (default 768), `-
 - [`docs/evaluation.md`](docs/evaluation.md): dataset, frozen-prompt procedure, scoring, results status
 - [`docs/field-test.md`](docs/field-test.md): nine-photo field test procedure
 
+## Hacktoberfest 2026
+
+Explora was developed as part of my participation in the
+Hacktoberfest 2026 Open-Source AI Challenge.
+
+The project explores local AI-powered nature identification
+and a personal journal for documenting outdoor discoveries.
+
 ## License
 
 Explora is released under the [MIT License](LICENSE). Gemma model weights and Ollama are separate software with their own licences, and this repository does not bundle them.
